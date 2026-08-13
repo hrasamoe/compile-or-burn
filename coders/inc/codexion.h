@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/13 13:35:07 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/13 14:11:39 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define CODEXION_H
 
 # include <pthread.h>
+# include <sys/time.h>
+# include <stdlib.h>
 
 typedef enum e_schedule
 {
@@ -79,10 +81,11 @@ struct s_simulator
 {
 	int				stop;
 	t_coder			*coder;
+	t_dongle		*dongles;
 	pthread_mutex_t	log_lock;
 	pthread_mutex_t	stop_lock;
 	pthread_mutex_t	heap_lock;
-	int				coder_number;
+	int				nb_coder;
 	long			start_time;
 	long			time_to_debug;
 	t_heap			*request_heap;
@@ -93,5 +96,7 @@ struct s_simulator
 	long			time_to_refrator;
 	int				nb_compilation_required;
 };
+
+long long	get_current_time(void);
 
 #endif
