@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/13 14:11:39 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/13 15:04:33 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ struct s_dongle
 {
 	int				id;
 	pthread_mutex_t	lock;
+	pthread_cond_t	cond;
 	int				held_by;
 	int				is_available;
 	long			unvailable_until;
@@ -67,9 +68,9 @@ struct s_heap
 struct s_coder
 {
 	int				id;
+	pthread_mutex_t	lock;
 	t_coder_state	state;
 	long			deadline;
-	pthread_mutex_t	lock;
 	t_simulator		*simulator;
 	t_dongle		*dongle_left;
 	t_dongle		*dongle_right;
@@ -98,5 +99,6 @@ struct s_simulator
 };
 
 long long	get_current_time(void);
+void		free_dongle_on_error(t_dongle *dongles, int i);
 
 #endif
