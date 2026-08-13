@@ -6,11 +6,31 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 13:38:48 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/13 15:06:05 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/13 15:41:39 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/codexion.h"
+
+static t_heap	*heap_init(t_simulator *simulation)
+{
+	t_heap	*heap;
+
+	heap = malloc(sizeof(t_heap));
+	if (!heap)
+		return (NULL);
+	heap->request_array = malloc(sizeof(t_request) * simulation->nb_coder);
+	if (!heap->request_array)
+	{
+		free(heap);
+		return (NULL);
+	}
+	heap->size = 0;
+	heap->capacity = simulation->nb_coder;
+	heap->schedule_type = simulation->schedule_type;
+	pthread_mutex_init(&heap->lock, NULL);
+	return (heap);
+}
 
 static t_coder	*init_coder(t_simulator *simulation)
 {
@@ -64,4 +84,30 @@ static t_dongle	*init_dongles(t_simulator *simulation)
 		i++;
 	}
 	return (dongle_array);
+}
+
+int	init_simulation(t_simulator *simulation)
+{
+	simulation->start_time = get_current_time();
+	simulation->stop = 0;
+	if (pthread_mutex_init(&simulation->stop_lock, NULL) != 0)
+		return (0);
+	if (pthread_mutex_init(&simulation->heap_lock, NULL) != 0)
+		return (pthread_mutex_destroy(&simulation->stop_lock), 0);
+	if (pthread_mutex_init(&simulation->log_lock, NULL) != 0)
+	{
+		pthread_mutex_destroy(&simulation->stop_lock);
+		pthread_mutex_destroy(&simulation->heap_lock);
+		return (0);
+	}
+	simulation->request_heap = heap_init(simulation);
+	if (!simulation->request_heap)
+		return (clean_simulation(simulation), 0);
+	simulation->dongles = init_dongles(simulation);
+	if (!simulation->dongles)
+		return (clean_simulation(simulation), 0);
+	simulation->coder = init_coder(simulation);
+	if (!simulation->coder)
+		return (clean_simulation(simulation), 0);
+	return (1);
 }

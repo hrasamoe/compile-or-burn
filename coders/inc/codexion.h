@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/13 15:04:33 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/13 15:40:27 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,8 @@ struct s_simulator
 };
 
 long long	get_current_time(void);
+t_heap		*heap_init(t_simulator *simulation);
+void		clean_simulation(t_simulator *simulation);
 void		free_dongle_on_error(t_dongle *dongles, int i);
 
 #endif
