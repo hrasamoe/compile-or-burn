@@ -6,12 +6,14 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/13 10:50:31 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/13 13:35:07 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CODEXION_H
 # define CODEXION_H
+
+# include <pthread.h>
 
 typedef enum e_schedule
 {
@@ -34,5 +36,62 @@ typedef struct s_heap			t_heap;
 typedef struct s_coder			t_coder;
 typedef struct s_dongle			t_dongle;
 typedef struct s_request		t_request;
+
+struct s_dongle
+{
+	int				id;
+	pthread_mutex_t	lock;
+	int				held_by;
+	int				is_available;
+	long			unvailable_until;
+};
+
+struct s_request
+{
+	long			deadline;
+	int				coder_id;
+	long			arrival_time;
+};
+
+struct s_heap
+{
+	int				size;
+	int				capacity;
+	t_request		*request_array;
+	pthread_mutex_t	lock;
+	t_schedule		schedule_type;
+};
+
+struct s_coder
+{
+	int				id;
+	t_coder_state	state;
+	long			deadline;
+	pthread_mutex_t	lock;
+	t_simulator		*simulator;
+	t_dongle		*dongle_left;
+	t_dongle		*dongle_right;
+	int				nb_compilation;
+	long			last_compilation;
+};
+
+struct s_simulator
+{
+	int				stop;
+	t_coder			*coder;
+	pthread_mutex_t	log_lock;
+	pthread_mutex_t	stop_lock;
+	pthread_mutex_t	heap_lock;
+	int				coder_number;
+	long			start_time;
+	long			time_to_debug;
+	t_heap			*request_heap;
+	t_schedule		schedule_type;
+	long			time_to_compile;
+	long			dongle_cooldown;
+	long			time_to_burnout;
+	long			time_to_refrator;
+	int				nb_compilation_required;
+};
 
 #endif
