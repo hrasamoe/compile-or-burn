@@ -6,11 +6,27 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 13:58:19 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/25 13:59:27 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/25 14:07:22 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/codexion.h"
+
+static int	is_number(char *str)
+{
+	int	i;
+
+	if (!str || !str[0])
+		return (0);
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] < '0' || str[i] > '9')
+			return (0);
+		i++;
+	}
+	return (1);
+}
 
 int	parse_arguments(int argc, char **argv, t_simulator *sim)
 {
