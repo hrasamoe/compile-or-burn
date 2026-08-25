@@ -6,13 +6,13 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 12:35:45 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/25 12:50:12 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/25 15:25:58 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/codexion.h"
 
-static int	heap_compare(t_request a, t_request b, t_schedule schedule_type)
+int	compare_heap(t_request a, t_request b, t_schedule schedule_type)
 {
 	if (schedule_type == FIFO)
 	{
@@ -54,7 +54,7 @@ int	push_heap(t_heap *heap, t_request new_request)
 	i = heap->size;
 	heap->request_array[i] = new_request;
 	heap->size++;
-	while (i > 0 && heap_compare(heap->request_array[i],
+	while (i > 0 && compare_heap(heap->request_array[i],
 			heap->request_array[(i - 1) / 2], heap->schedule_type) < 0)
 	{
 		priority_request = heap->request_array[i];
