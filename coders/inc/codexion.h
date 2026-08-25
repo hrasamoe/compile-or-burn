@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/25 12:50:03 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/25 15:54:40 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <pthread.h>
 # include <sys/time.h>
 # include <stdlib.h>
+# include <stdio.h>
 
 typedef enum e_schedule
 {
@@ -99,9 +100,19 @@ struct s_simulator
 };
 
 long long	get_current_time(void);
+void		take_dongles(t_coder *coder,
+				t_dongle *dongle_left,
+				t_dongle *dongle_right);
+void		release_dongles(t_dongle *dongle_left,
+				t_dongle *dongle_right,
+				t_simulator *simulator);
 t_heap		*heap_init(t_simulator *simulation);
+int			should_stop(t_simulator *simulation);
 void		clean_simulation(t_simulator *simulation);
+void		print_log(t_coder *coder, const char *action);
 void		free_dongle_on_error(t_dongle *dongles, int i);
 int			push_heap(t_heap *heap, t_request new_request);
-
+void		precise_sleep(t_simulator *simulation, long duration);
+int			are_dongles_ready(t_dongle *dongle_left, t_dongle *dongle_right);
+int			compare_heap(t_request a, t_request b, t_schedule schedule_type);
 #endif
