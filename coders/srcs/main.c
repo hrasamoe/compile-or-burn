@@ -6,18 +6,11 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 12:58:13 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 14:27:33 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 14:36:55 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/codexion.h"
-
-void	set_stop_flag(t_simulator *simulation)
-{
-	pthread_mutex_lock(&simulation->stop_lock);
-	simulation->stop = 1;
-	pthread_mutex_unlock(&simulation->stop_lock);
-}
 
 void	*coder_routine(void *arg)
 {
@@ -35,44 +28,55 @@ void	*coder_routine(void *arg)
 		pthread_mutex_unlock(&coder->lock);
 		aquire_dongles(coder);
 		coder_compile(coder);
-		release_dongles(coder->dongle_left, coder->dongle_right, coder->simulator);
+		release_dongles(coder->dongle_left, coder->dongle_right,
+			coder->simulator);
 		coder_debug(coder);
 		coder_refactor(coder);
 	}
 	return (NULL);
 }
 
+static int	check_coder(t_simulator *sim, t_coder *coder)
+{
+	pthread_mutex_lock(&coder->lock);
+	if (coder->nb_compilation >= sim->nb_compilation_required)
+	{
+		pthread_mutex_unlock(&coder->lock);
+		return (1);
+	}
+	if (get_current_time() >= coder->last_compilation + sim->time_to_burnout)
+	{
+		pthread_mutex_unlock(&coder->lock);
+		print_log(coder, "burned out");
+		set_stop_flag(sim);
+		return (-1);
+	}
+	pthread_mutex_unlock(&coder->lock);
+	return (0);
+}
+
 void	*monitor_routine(void *arg)
 {
-	t_simulator	*simulation;
+	t_simulator	*sim;
 	int			i;
-	int			finished_coders;
+	int			finished;
+	int			res;
 
-	simulation = (t_simulator *)arg;
-	while (!should_stop(simulation))
+	sim = (t_simulator *)arg;
+	while (!should_stop(sim))
 	{
 		i = 0;
-		finished_coders = 0;
-		while (i < simulation->nb_coder)
+		finished = 0;
+		while (i < sim->nb_coder)
 		{
-			pthread_mutex_lock(&simulation->coder[i].lock);
-			if (simulation->coder[i].nb_compilation >= simulation->nb_compilation_required)
-				finished_coders++;
-			if (get_current_time() >= simulation->coder[i].last_compilation + simulation->time_to_burnout)
-			{
-				pthread_mutex_unlock(&simulation->coder[i].lock);
-				print_log(&simulation->coder[i], "burned out");
-				set_stop_flag(simulation);
+			res = check_coder(sim, &sim->coder[i]);
+			if (res == -1)
 				return (NULL);
-			}
-			pthread_mutex_unlock(&simulation->coder[i].lock);
+			finished += res;
 			i++;
 		}
-		if (finished_coders == simulation->nb_coder)
-		{
-			set_stop_flag(simulation);
-			return (NULL);
-		}
+		if (finished == sim->nb_coder)
+			return (set_stop_flag(sim), NULL);
 		usleep(300);
 	}
 	return (NULL);

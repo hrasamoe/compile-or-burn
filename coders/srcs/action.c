@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 13:06:54 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 14:13:50 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 14:30:07 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ void	release_dongles(t_dongle *dongle_left,
 	dongle_right->is_available = 1;
 	dongle_right->unvailable_until = timestamp + simulator->dongle_cooldown;
 	pthread_mutex_unlock(&dongle_right->lock);
-
 }
 
 int	heap_try_pop_if_mine(t_heap *heap, int coder_id, t_request *result)

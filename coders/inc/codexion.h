@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 14:02:49 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 14:37:13 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,4 +127,5 @@ int			are_dongles_ready(t_dongle *dongle_left, t_dongle *dongle_right);
 int			compare_heap(t_request a, t_request b, t_schedule schedule_type);
 int			parse_arguments(int argc, char **argv, t_simulator *sim);
 int			init_simulation(t_simulator *simulation);
+void		set_stop_flag(t_simulator *simulation);
 #endif
