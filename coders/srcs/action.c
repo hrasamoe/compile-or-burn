@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 13:06:54 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 14:07:01 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 14:13:50 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,5 @@ void	aquire_dongles(t_coder *coder)
 			return ;
 		}
 		usleep(500);
-		printf("DEBUG coder=%d dongle_left_avail=%d dongle_right_avail=%d\n",
-    coder->id, coder->dongle_left->is_available, coder->dongle_right->is_available);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 12:58:13 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 13:23:42 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 14:27:33 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,15 @@ void	*coder_routine(void *arg)
 	t_coder	*coder;
 
 	coder = (t_coder *)arg;
-	while (!should_stop(coder->simulator)
-		&& coder->nb_compilation < coder->simulator->nb_compilation_required)
+	while (!should_stop(coder->simulator))
 	{
+		pthread_mutex_lock(&coder->lock);
+		if (coder->nb_compilation >= coder->simulator->nb_compilation_required)
+		{
+			pthread_mutex_unlock(&coder->lock);
+			break ;
+		}
+		pthread_mutex_unlock(&coder->lock);
 		aquire_dongles(coder);
 		coder_compile(coder);
 		release_dongles(coder->dongle_left, coder->dongle_right, coder->simulator);
@@ -40,20 +46,32 @@ void	*monitor_routine(void *arg)
 {
 	t_simulator	*simulation;
 	int			i;
+	int			finished_coders;
 
 	simulation = (t_simulator *)arg;
 	while (!should_stop(simulation))
 	{
 		i = 0;
+		finished_coders = 0;
 		while (i < simulation->nb_coder)
 		{
+			pthread_mutex_lock(&simulation->coder[i].lock);
+			if (simulation->coder[i].nb_compilation >= simulation->nb_compilation_required)
+				finished_coders++;
 			if (get_current_time() >= simulation->coder[i].last_compilation + simulation->time_to_burnout)
 			{
+				pthread_mutex_unlock(&simulation->coder[i].lock);
 				print_log(&simulation->coder[i], "burned out");
 				set_stop_flag(simulation);
 				return (NULL);
 			}
+			pthread_mutex_unlock(&simulation->coder[i].lock);
 			i++;
+		}
+		if (finished_coders == simulation->nb_coder)
+		{
+			set_stop_flag(simulation);
+			return (NULL);
 		}
 		usleep(300);
 	}
