@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/25 15:54:40 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 10:59:12 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,8 @@ struct s_simulator
 };
 
 long long	get_current_time(void);
+t_request	*heap_pop(t_heap *heap);
+t_request	*peek_heap(t_heap *heap);
 void		take_dongles(t_coder *coder,
 				t_dongle *dongle_left,
 				t_dongle *dongle_right);

@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 13:06:54 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/25 14:03:47 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 11:06:24 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,4 +47,30 @@ void	release_dongles(t_dongle *dongle_left,
 	dongle_right->held_by = -1;
 	dongle_right->is_available = 1;
 	dongle_right->unvailable_until = timestamp + simulator->dongle_cooldown;
+}
+
+void	aquire_dongles(t_coder *coder)
+{
+	t_request	new_request;
+	t_request	*top_request;
+
+	new_request.coder_id = coder->id;
+	new_request.deadline = coder->last_compilation
+		+ coder->simulator->time_to_burnout;
+	new_request.arrival_time = get_current_time();
+	push_heap(coder->simulator->request_heap, new_request);
+	while (!should_stop(coder->simulator))
+	{
+		top_request = peek_heap(coder->simulator->request_heap);
+		if (top_request->coder_id == coder->id
+			&& are_dongles_ready(coder->dongle_left, coder->dongle_right))
+		{
+			heap_pop(&coder->simulator->heap_lock);
+			free(top_request);
+			take_dongles(coder, coder->dongle_left, coder->dongle_right);
+			return ;
+		}
+		free(top_request);
+		usleep(500);
+	}
 }
