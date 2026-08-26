@@ -6,17 +6,19 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 10:59:12 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 13:46:20 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CODEXION_H
 # define CODEXION_H
 
+# include <unistd.h>
 # include <pthread.h>
 # include <sys/time.h>
 # include <stdlib.h>
 # include <stdio.h>
+# include <string.h>
 
 typedef enum e_schedule
 {
@@ -69,6 +71,7 @@ struct s_heap
 struct s_coder
 {
 	int				id;
+	pthread_t		coder_thread;
 	pthread_mutex_t	lock;
 	t_coder_state	state;
 	long			deadline;
@@ -82,6 +85,7 @@ struct s_coder
 struct s_simulator
 {
 	int				stop;
+	pthread_t		monitor_thread;
 	t_coder			*coder;
 	t_dongle		*dongles;
 	pthread_mutex_t	log_lock;
@@ -102,13 +106,16 @@ struct s_simulator
 long long	get_current_time(void);
 t_request	*heap_pop(t_heap *heap);
 t_request	*peek_heap(t_heap *heap);
+void		coder_debug(t_coder *coder);
+void		coder_compile(t_coder *coder);
+void		coder_refactor(t_coder *coder);
 void		take_dongles(t_coder *coder,
 				t_dongle *dongle_left,
 				t_dongle *dongle_right);
 void		release_dongles(t_dongle *dongle_left,
 				t_dongle *dongle_right,
 				t_simulator *simulator);
-t_heap		*heap_init(t_simulator *simulation);
+void		aquire_dongles(t_coder *coder);
 int			should_stop(t_simulator *simulation);
 void		clean_simulation(t_simulator *simulation);
 void		print_log(t_coder *coder, const char *action);
@@ -117,4 +124,6 @@ int			push_heap(t_heap *heap, t_request new_request);
 void		precise_sleep(t_simulator *simulation, long duration);
 int			are_dongles_ready(t_dongle *dongle_left, t_dongle *dongle_right);
 int			compare_heap(t_request a, t_request b, t_schedule schedule_type);
+int			parse_arguments(int argc, char **argv, t_simulator *sim);
+int			init_simulation(t_simulator *simulation);
 #endif
