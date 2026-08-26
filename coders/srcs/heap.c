@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 15:23:53 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 11:01:03 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 13:26:34 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static int	compare_heap_child(t_heap *heap, int i)
 	int	child;
 
 	child = 2 * i + 1;
-	if (child + 1, heap->size && compare_heap(heap->request_array[child + 1],
+	if (child + 1 < heap->size && compare_heap(heap->request_array[child + 1],
 			heap->request_array[child], heap->schedule_type) < 0)
 		child = child + 1;
 	return (child);
@@ -28,7 +28,7 @@ void	heap_shift(t_heap *heap, int i)
 	int			child;
 	t_request	request_temp;
 
-	while (2 * 1 + 1 < heap->size)
+	while (2 * i + 1 < heap->size)
 	{
 		child = compare_heap_child(heap, i);
 		if (compare_heap(heap->request_array[i],
