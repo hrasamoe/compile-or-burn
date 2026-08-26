@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 13:06:54 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 11:06:24 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 11:25:44 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void	aquire_dongles(t_coder *coder)
 		if (top_request->coder_id == coder->id
 			&& are_dongles_ready(coder->dongle_left, coder->dongle_right))
 		{
-			heap_pop(&coder->simulator->heap_lock);
+			heap_pop(&coder->simulator->request_heap);
 			free(top_request);
 			take_dongles(coder, coder->dongle_left, coder->dongle_right);
 			return ;

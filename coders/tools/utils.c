@@ -6,17 +6,20 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 13:38:48 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/25 15:20:40 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 11:30:08 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/codexion.h"
 
-void	set_stop_flag(t_simulator *simulation)
+int	should_stop(t_simulator *simulation)
 {
+	int		result;
+
 	pthread_mutex_lock(&simulation->stop_lock);
-	simulation->stop = 1;
-	pthread_mutex_lock(&simulation->stop_lock);
+	result = simulation->stop;
+	pthread_mutex_unlock(&simulation->stop_lock);
+	return (result);
 }
 
 long long	get_current_time(void)
