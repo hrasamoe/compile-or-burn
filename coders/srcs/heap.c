@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 15:23:53 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/25 16:15:53 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 11:01:03 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,9 @@ void	heap_shift(t_heap *heap, int i)
 	}
 }
 
-t_request *heap_pop(t_heap *heap)
+t_request	*heap_pop(t_heap *heap)
 {
-	t_request *result;
+	t_request	*result;
 
 	if (!heap)
 		return (0);
