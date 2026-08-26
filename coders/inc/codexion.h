@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 13:46:20 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 14:02:49 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,7 @@ struct s_simulator
 	int				nb_compilation_required;
 };
 
+void		heap_shift(t_heap *heap, int i);
 long long	get_current_time(void);
 t_request	*heap_pop(t_heap *heap);
 t_request	*peek_heap(t_heap *heap);

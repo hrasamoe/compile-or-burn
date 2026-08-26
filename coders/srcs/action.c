@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 13:06:54 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 13:35:37 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 14:07:01 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,28 @@ void	release_dongles(t_dongle *dongle_left,
 
 }
 
+int	heap_try_pop_if_mine(t_heap *heap, int coder_id, t_request *result)
+{
+	if (!heap || !result)
+		return (0);
+	pthread_mutex_lock(&heap->lock);
+	if (heap->size == 0 || heap->request_array[0].coder_id != coder_id)
+	{
+		pthread_mutex_unlock(&heap->lock);
+		return (0);
+	}
+	*result = heap->request_array[0];
+	heap->request_array[0] = heap->request_array[heap->size - 1];
+	heap->size--;
+	heap_shift(heap, 0);
+	pthread_mutex_unlock(&heap->lock);
+	return (1);
+}
+
 void	aquire_dongles(t_coder *coder)
 {
 	t_request	new_request;
-	t_request	*top_request;
-	t_request	*popped_request;
+	t_request	popped_request;
 
 	new_request.coder_id = coder->id;
 	new_request.deadline = coder->last_compilation
@@ -67,22 +84,15 @@ void	aquire_dongles(t_coder *coder)
 	push_heap(coder->simulator->request_heap, new_request);
 	while (!should_stop(coder->simulator))
 	{
-		top_request = peek_heap(coder->simulator->request_heap);
-		if (top_request == NULL)
+		if (are_dongles_ready(coder->dongle_left, coder->dongle_right)
+			&& heap_try_pop_if_mine(coder->simulator->request_heap,
+				coder->id, &popped_request))
 		{
-			usleep(500);
-			continue ;
-		}
-		if (top_request->coder_id == coder->id
-			&& are_dongles_ready(coder->dongle_left, coder->dongle_right))
-		{
-			popped_request = heap_pop(coder->simulator->request_heap);
-			free(top_request);
-			free(popped_request);
 			take_dongles(coder, coder->dongle_left, coder->dongle_right);
 			return ;
 		}
-		free(top_request);
 		usleep(500);
+		printf("DEBUG coder=%d dongle_left_avail=%d dongle_right_avail=%d\n",
+    coder->id, coder->dongle_left->is_available, coder->dongle_right->is_available);
 	}
 }
