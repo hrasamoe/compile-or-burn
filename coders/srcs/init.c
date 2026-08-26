@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 13:38:48 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/13 15:41:39 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 13:32:36 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ static t_dongle	*init_dongles(t_simulator *simulation)
 	dongle_array = malloc(sizeof(t_dongle) * simulation->nb_coder);
 	if (!dongle_array)
 		return (NULL);
+	i = 0;
 	while (i < simulation->nb_coder)
 	{
 		dongle_array[i].held_by = -1;
@@ -78,7 +79,7 @@ static t_dongle	*init_dongles(t_simulator *simulation)
 			return (free_dongle_on_error(dongle_array, i), NULL);
 		if (pthread_cond_init(&dongle_array[i].cond, NULL) != 0)
 		{
-			pthread_mutex_destroy(&dongle_array[i]);
+			pthread_mutex_destroy(&dongle_array[i].lock);
 			return (free_dongle_on_error(dongle_array, i), NULL);
 		}
 		i++;
