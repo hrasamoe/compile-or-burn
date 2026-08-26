@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 13:38:48 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/13 15:44:32 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/26 13:31:57 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@ void	free_dongle_on_error(t_dongle *dongles, int i)
 	while (j < i)
 	{
 		pthread_mutex_destroy(&dongles[j].lock);
-		pthread_cond_destroy(&dongles[i].cond);
-		i++;
+		pthread_cond_destroy(&dongles[j].cond);
+		j++;
 	}
 	free(dongles);
 }
@@ -41,6 +41,7 @@ static void	free_dongles(t_simulator *simulation)
 
 	if (!simulation->dongles)
 		return ;
+	i = 0;
 	while (i < simulation->nb_coder)
 	{
 		pthread_mutex_destroy(&simulation->dongles[i].lock);
