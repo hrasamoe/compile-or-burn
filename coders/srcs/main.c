@@ -6,13 +6,13 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 12:58:13 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 14:36:55 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/27 19:46:11 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/codexion.h"
 
-void	*coder_routine(void *arg)
+static void	*coder_routine(void *arg)
 {
 	t_coder	*coder;
 
@@ -55,7 +55,7 @@ static int	check_coder(t_simulator *sim, t_coder *coder)
 	return (0);
 }
 
-void	*monitor_routine(void *arg)
+static void	*monitor_routine(void *arg)
 {
 	t_simulator	*sim;
 	int			i;
