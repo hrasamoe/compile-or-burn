@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 12:55:50 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 14:36:59 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/29 22:00:33 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,4 +30,34 @@ void	set_stop_flag(t_simulator *simulation)
 	pthread_mutex_lock(&simulation->stop_lock);
 	simulation->stop = 1;
 	pthread_mutex_unlock(&simulation->stop_lock);
+}
+
+void	print_start_msg(void)
+{
+	printf("\n\033[1;32m+--------------------------------"
+		"-----------------+\033[0m\n");
+	printf("\033[1;32m|        Starting the compilation"
+		" process...      |\033[0m\n");
+	printf("\033[1;32m+--------------------------------"
+		"-----------------+\033[0m\n");
+}
+
+void	print_finish_msg(t_simulator *sim)
+{
+	printf("\033[1;32m+--------------------------------"
+		"-----------------+\033[0m\n");
+	printf("\033[1;32m|  All the coders have done their"
+		" compilation     |\033[0m\n");
+	printf("\033[1;32m+--------------------------------"
+		"-----------------+\033[0m\n");
+	set_stop_flag(sim);
+}
+
+void	print_err_msg(const char *msg)
+{
+	fprintf(stderr, "\033[1;31m+------------------------------"
+		"-------------------+\033[0m\n");
+	fprintf(stderr, "\033[1;31m|%s|\033[0m\n", msg);
+	fprintf(stderr, "\033[1;31m+------------------------------"
+		"-------------------+\033[0m\n");
 }

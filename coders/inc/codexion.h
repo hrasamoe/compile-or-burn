@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 14:37:13 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/29 22:04:40 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,11 @@ typedef enum e_coder_state
 	WAITING_DONGLES
 }	t_coder_state;
 
-typedef struct s_simulator		t_simulator;
-typedef struct s_heap			t_heap;
-typedef struct s_coder			t_coder;
-typedef struct s_dongle			t_dongle;
-typedef struct s_request		t_request;
+typedef struct s_simulator	t_simulator;
+typedef struct s_heap		t_heap;
+typedef struct s_coder		t_coder;
+typedef struct s_dongle		t_dongle;
+typedef struct s_request	t_request;
 
 struct s_dongle
 {
@@ -103,29 +103,33 @@ struct s_simulator
 	int				nb_compilation_required;
 };
 
-void		heap_shift(t_heap *heap, int i);
+void		print_start_msg(void);
 long long	get_current_time(void);
 t_request	*heap_pop(t_heap *heap);
 t_request	*peek_heap(t_heap *heap);
 void		coder_debug(t_coder *coder);
 void		coder_compile(t_coder *coder);
+void		aquire_dongles(t_coder *coder);
 void		coder_refactor(t_coder *coder);
+void		print_err_msg(const char *msg);
+void		heap_shift(t_heap *heap, int i);
+void		print_finish_msg(t_simulator *sim);
+int			should_stop(t_simulator *simulation);
+void		set_stop_flag(t_simulator *simulation);
+int			init_simulation(t_simulator *simulation);
+void		clean_simulation(t_simulator *simulation);
+void		free_dongle_on_error(t_dongle *dongles, int i);
+void		print_log(t_coder *coder, const char *action);
+int			push_heap(t_heap *heap, t_request new_request);
+void		precise_sleep(t_simulator *simulation, long duration);
+int			parse_arguments(int argc, char **argv, t_simulator *sim);
+int			are_dongles_ready(t_dongle *dongle_left, t_dongle *dongle_right);
+int			compare_heap(t_request a, t_request b, t_schedule schedule_type);
 void		take_dongles(t_coder *coder,
 				t_dongle *dongle_left,
 				t_dongle *dongle_right);
 void		release_dongles(t_dongle *dongle_left,
 				t_dongle *dongle_right,
 				t_simulator *simulator);
-void		aquire_dongles(t_coder *coder);
-int			should_stop(t_simulator *simulation);
-void		clean_simulation(t_simulator *simulation);
-void		print_log(t_coder *coder, const char *action);
-void		free_dongle_on_error(t_dongle *dongles, int i);
-int			push_heap(t_heap *heap, t_request new_request);
-void		precise_sleep(t_simulator *simulation, long duration);
-int			are_dongles_ready(t_dongle *dongle_left, t_dongle *dongle_right);
-int			compare_heap(t_request a, t_request b, t_schedule schedule_type);
-int			parse_arguments(int argc, char **argv, t_simulator *sim);
-int			init_simulation(t_simulator *simulation);
-void		set_stop_flag(t_simulator *simulation);
+
 #endif
