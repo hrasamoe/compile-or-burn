@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 12:58:13 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/27 19:46:11 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/29 17:58:06 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,16 +76,24 @@ static void	*monitor_routine(void *arg)
 			i++;
 		}
 		if (finished == sim->nb_coder)
+		{
+			printf("\033[1;32m+-------------------------------------------------+\033[0m\n");
+			printf("\033[1;32m|  All the coders have done their compilation     |\033[0m\n");
+			printf("\033[1;32m+-------------------------------------------------+\033[0m\n");
 			return (set_stop_flag(sim), NULL);
+		}
 		usleep(300);
 	}
 	return (NULL);
 }
 
-static void	run_threads(t_simulator *simulation)
+static void run_threads(t_simulator *simulation)
 {
 	int	i;
 
+	printf("\n\033[1;32m+-------------------------------------------------+\033[0m\n");
+	printf("\033[1;32m|        Starting the compilation process...      |\033[0m\n");
+	printf("\033[1;32m+-------------------------------------------------+\033[0m\n");
 	pthread_create(&simulation->monitor_thread, NULL,
 		monitor_routine, simulation);
 	i = 0;
@@ -104,18 +112,22 @@ static void	run_threads(t_simulator *simulation)
 	pthread_join(simulation->monitor_thread, NULL);
 }
 
-int	main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-	t_simulator	simulation;
+	t_simulator simulation;
 
 	if (!parse_arguments(argc, argv, &simulation))
 	{
-		fprintf(stderr, "Error: invalid arguments\n");
+		fprintf(stderr, "\033[1;31m+-------------------------------------------------+\033[0m\n");
+		fprintf(stderr, "\033[1;31m|            Error: invalid arguments             |\033[0m\n");
+		fprintf(stderr, "\033[1;31m+-------------------------------------------------+\033[0m\n");
 		return (1);
 	}
 	if (!init_simulation(&simulation))
 	{
-		fprintf(stderr, "Error: simulation initialization failed\n");
+		fprintf(stderr, "\033[1;31m+-------------------------------------------------+\033[0m\n");
+		fprintf(stderr, "\033[1;31m|   Error: simulation initialization failed       |\033[0m\n");
+		fprintf(stderr, "\033[1;31m+-------------------------------------------------+\033[0m\n");
 		return (1);
 	}
 	run_threads(&simulation);
