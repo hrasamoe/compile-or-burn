@@ -3,10 +3,10 @@ NAME		= codexion
 CC			= cc
 CFLAGS		= -Wall -Wextra -Werror -pthread
 
-SRCS_DIR	= srcs
-TOOLS_DIR	= tools
+SRCS_DIR	= coders/srcs
+TOOLS_DIR	= coders/tools
 OBJS_DIR	= objs
-HEADERS_DIR	= inc
+HEADERS_DIR	= coders/inc
 
 SRCS		= $(SRCS_DIR)/main.c \
 			  $(SRCS_DIR)/action.c \
