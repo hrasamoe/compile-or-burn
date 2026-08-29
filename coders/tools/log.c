@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 12:55:50 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/29 22:00:33 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/29 22:16:56 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ void	print_start_msg(void)
 
 void	print_finish_msg(t_simulator *sim)
 {
+	usleep(300);
 	printf("\033[1;32m+--------------------------------"
 		"-----------------+\033[0m\n");
 	printf("\033[1;32m|  All the coders have done their"
