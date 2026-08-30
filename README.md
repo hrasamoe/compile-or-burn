@@ -58,16 +58,16 @@ make re     # full rebuild
 
 #### Argument details
 
-| # | Argument | Description |
-|---|---|---|
-| 1 | `number_of_coders` | Number of coder threads (and available dongles) |
-| 2 | `time_to_burnout` | Time in ms before a coder burns out if they don't start compiling |
-| 3 | `time_to_compile` | Duration of the compiling phase (in ms) |
-| 4 | `time_to_debug` | Duration of the debugging phase (in ms) |
-| 5 | `time_to_refactor` | Duration of the refactoring phase (in ms) |
-| 6 | `number_of_compiles_required` | Number of successful compiles each coder must reach for the simulation to stop cleanly |
-| 7 | `dongle_cooldown` | Wait time after a dongle is released before it becomes available again (in ms) |
-| 8 | `scheduler` | Arbitration policy for dongle requests: `fifo` or `edf` |
+| #   | Argument                      | Description                                                                            |
+| --- | ----------------------------- | -------------------------------------------------------------------------------------- |
+| 1   | `number_of_coders`            | Number of coder threads (and available dongles)                                        |
+| 2   | `time_to_burnout`             | Time in ms before a coder burns out if they don't start compiling                      |
+| 3   | `time_to_compile`             | Duration of the compiling phase (in ms)                                                |
+| 4   | `time_to_debug`               | Duration of the debugging phase (in ms)                                                |
+| 5   | `time_to_refactor`            | Duration of the refactoring phase (in ms)                                              |
+| 6   | `number_of_compiles_required` | Number of successful compiles each coder must reach for the simulation to stop cleanly |
+| 7   | `dongle_cooldown`             | Wait time after a dongle is released before it becomes available again (in ms)         |
+| 8   | `scheduler`                   | Arbitration policy for dongle requests: `fifo` or `edf`                                |
 
 #### Example
 
@@ -125,7 +125,7 @@ No code was copy-pasted directly from AI output into the submission without bein
 ### 1. Deadlock prevention (Coffman's conditions)
 
 - **Mutual exclusion** is required by the subject (one coder per dongle at a time) and is not removable.
-- **Hold-and-wait** and **circular wait** are both broken through **centralized arbitration**: a coder never locks a dongle while still deciding whether it can get the second one. Instead, a request (coder id, arrival time, and computed deadline) is pushed onto a shared priority heap (`push_heap`). While waiting, the coder repeatedly calls `heap_try_pop_if_mine`, which - atomically, under the heap's own mutex - checks whether its request currently sits at the head of the heap *and* only pops it if so. A coder is only allowed to actually lock its two dongles once that atomic pop succeeded and `are_dongles_ready` confirmed both dongles are free and past cooldown.
+- **Hold-and-wait** and **circular wait** are both broken through **centralized arbitration**: a coder never locks a dongle while still deciding whether it can get the second one. Instead, a request (coder id, arrival time, and computed deadline) is pushed onto a shared priority heap (`push_heap`). While waiting, the coder repeatedly calls `heap_try_pop_if_mine`, which - atomically, under the heap's own mutex - checks whether its request currently sits at the head of the heap _and_ only pops it if so. A coder is only allowed to actually lock its two dongles once that atomic pop succeeded and `are_dongles_ready` confirmed both dongles are free and past cooldown.
 - **Single-coder edge case**: when `number_of_coders == 1`, a coder's left and right dongle are the same dongle. `take_dongles` explicitly checks for this and issues a single `pthread_mutex_lock` call instead of two, so the same mutex is never locked twice by the same thread, which would otherwise deadlock immediately.
 - As an additional safeguard, when the two dongles are distinct, `take_dongles` always acquires them in ascending dongle-ID order (`min(left, right)` before `max(left, right)`), removing any possibility of a circular wait chain.
 
@@ -161,7 +161,7 @@ All log output goes through a single function (`print_log`) protected by a dedic
 - **`pthread_mutex_t lock` per coder** - protects a coder's own `state` and `nb_compilation` fields against concurrent access.
 - **Bounded polling instead of blocking waits** - a coder waiting for its turn (heap priority) and for both dongles to be ready polls the shared state on a short `usleep` interval rather than spinning without pause, and the monitor does the same when scanning for burnouts. This keeps CPU usage bounded while staying well inside the timing precision the subject requires; it is a deliberate simplification over using condition variables for these waits.
 
-**Example - race condition avoided:** without the per-dongle mutex, two coder threads could both read `is_available == true` at the same instant and both proceed to "take" the same dongle. By locking the dongle before checking *and* updating its state (inside `take_dongles`), only one coder can ever transition a dongle from available to taken.
+**Example - race condition avoided:** without the per-dongle mutex, two coder threads could both read `is_available == true` at the same instant and both proceed to "take" the same dongle. By locking the dongle before checking _and_ updating its state (inside `take_dongles`), only one coder can ever transition a dongle from available to taken.
 
 **Example - avoiding a check-then-act race on the heap:** `heap_try_pop_if_mine` performs "is my request at the head?" and "pop it" as a single operation under the heap's mutex, rather than as two separate calls (peek, then pop). This prevents a window where two coder threads could both observe themselves at the head of the heap and both attempt to proceed.
 
