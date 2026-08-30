@@ -75,7 +75,7 @@ make re     # full rebuild
 ./codexion 4 800 200 400 100 5 50 edf
 ```
 
-All 8 arguments are mandatory. Arguments 1-7 must be strictly positive integers — zero, negative values, and non-numeric input are all rejected. Argument 8 must be exactly `fifo` or `edf`. Any invalid input is rejected with an error message and the program exits without running the simulation.
+All 8 arguments are mandatory. Arguments 1-7 must be strictly positive integers - zero, negative values, and non-numeric input are all rejected. Argument 8 must be exactly `fifo` or `edf`. Any invalid input is rejected with an error message and the program exits without running the simulation.
 
 #### Error handling
 
@@ -104,8 +104,7 @@ After this detailed message, the program also prints the generic red `Error: inv
 
 ### Documentation & articles
 
-- POSIX Threads Programming Guide (LLNL Tutorial) - reference for `pthread_create`, `pthread_mutex_t`
-- Operating System Concepts (Silberschatz, Galvin, Gagne) - chapters on concurrency, deadlocks, and scheduling
+- [Thread Management Functions in C](https://www.geeksforgeeks.org/c/thread-functions-in-c-c/)
 - Earliest Deadline First (EDF) scheduling - theoretical background on deadline-based real-time scheduling
 - man pages: `pthread_mutex_lock`, `gettimeofday`, `usleep`
 
@@ -126,7 +125,7 @@ No code was copy-pasted directly from AI output into the submission without bein
 ### 1. Deadlock prevention (Coffman's conditions)
 
 - **Mutual exclusion** is required by the subject (one coder per dongle at a time) and is not removable.
-- **Hold-and-wait** and **circular wait** are both broken through **centralized arbitration**: a coder never locks a dongle while still deciding whether it can get the second one. Instead, a request (coder id, arrival time, and computed deadline) is pushed onto a shared priority heap (`push_heap`). While waiting, the coder repeatedly calls `heap_try_pop_if_mine`, which — atomically, under the heap's own mutex — checks whether its request currently sits at the head of the heap *and* only pops it if so. A coder is only allowed to actually lock its two dongles once that atomic pop succeeded and `are_dongles_ready` confirmed both dongles are free and past cooldown.
+- **Hold-and-wait** and **circular wait** are both broken through **centralized arbitration**: a coder never locks a dongle while still deciding whether it can get the second one. Instead, a request (coder id, arrival time, and computed deadline) is pushed onto a shared priority heap (`push_heap`). While waiting, the coder repeatedly calls `heap_try_pop_if_mine`, which - atomically, under the heap's own mutex - checks whether its request currently sits at the head of the heap *and* only pops it if so. A coder is only allowed to actually lock its two dongles once that atomic pop succeeded and `are_dongles_ready` confirmed both dongles are free and past cooldown.
 - **Single-coder edge case**: when `number_of_coders == 1`, a coder's left and right dongle are the same dongle. `take_dongles` explicitly checks for this and issues a single `pthread_mutex_lock` call instead of two, so the same mutex is never locked twice by the same thread, which would otherwise deadlock immediately.
 - As an additional safeguard, when the two dongles are distinct, `take_dongles` always acquires them in ascending dongle-ID order (`min(left, right)` before `max(left, right)`), removing any possibility of a circular wait chain.
 
