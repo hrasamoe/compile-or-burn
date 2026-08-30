@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 12:55:50 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/29 22:16:56 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/08/29 23:12:54 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,25 @@ void	print_finish_msg(t_simulator *sim)
 
 void	print_err_msg(const char *msg)
 {
-	fprintf(stderr, "\033[1;31m+------------------------------"
-		"-------------------+\033[0m\n");
-	fprintf(stderr, "\033[1;31m|%s|\033[0m\n", msg);
-	fprintf(stderr, "\033[1;31m+------------------------------"
-		"-------------------+\033[0m\n");
+	int	len;
+	int	i;
+
+	len = strlen(msg);
+	i = 0;
+	fprintf(stderr, "\033[1;31m+");
+	while (i < len + 2)
+	{
+		fprintf(stderr, "-");
+		i++;
+	}
+	fprintf(stderr, "+\033[0m\n");
+	fprintf(stderr, "\033[1;31m| %s |\033[0m\n", msg);
+	i = 0;
+	fprintf(stderr, "\033[1;31m+");
+	while (i < len + 2)
+	{
+		fprintf(stderr, "-");
+		i++;
+	}
+	fprintf(stderr, "+\033[0m\n");
 }
