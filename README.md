@@ -1,9 +1,6 @@
 *This project has been created as part of the 42 curriculum by hrasamoe.*
 
 # Codexion
-
-Master the race for resources before the deadline masters you.
-
 ## Description
 
 **Codexion** is a concurrent programming project developed in C using POSIX threads (`pthreads`). The simulation models a high-stress software development environment where a set of developers (**Coders**) compete for a limited set of hardware licenses (**Dongles**) in order to compile their code before reaching a state of **Burnout**.
