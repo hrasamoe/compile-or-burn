@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/29 22:04:40 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/01 14:09:03 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ typedef enum e_coder_state
 	COMPILING,
 	BURNED_OUT,
 	REFACTORING,
-	WAITING_DONGLES
 }	t_coder_state;
 
 typedef struct s_simulator	t_simulator;
