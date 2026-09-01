@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 13:06:54 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 14:30:07 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/01 13:58:10 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ void	take_dongles(t_coder *coder,
 			t_dongle *dongle_left,
 			t_dongle *dongle_right)
 {
+	if (should_stop(coder->simulator))
+		return ;
 	if (dongle_left == dongle_right)
 		pthread_mutex_lock(&dongle_left->lock);
 	else if (dongle_left->id < dongle_right->id)
@@ -91,5 +93,7 @@ void	aquire_dongles(t_coder *coder)
 			return ;
 		}
 		usleep(500);
+		if (should_stop(coder->simulator))
+			return ;
 	}
 }

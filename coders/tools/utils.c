@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 13:38:48 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 11:30:08 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/01 13:59:31 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,6 @@ void	precise_sleep(t_simulator *simulation, long duration)
 	{
 		if (get_current_time() - start >= duration)
 			break ;
-		usleep(500);
+		usleep(200);
 	}
 }
