@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 13:38:48 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/04 14:09:17 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 14:23:26 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,17 +82,12 @@ static t_dongle	*init_dongles(t_simulator *simulation)
 	return (dongle_array);
 }
 
-int	init_simulation(t_simulator *simulation)
+static int	init_locks(t_simulator *simulation)
 {
-	simulation->start_time = get_current_time();
-	simulation->stop = 0;
 	if (pthread_mutex_init(&simulation->stop_lock, NULL) != 0)
 		return (0);
 	if (pthread_mutex_init(&simulation->alloc_lock, NULL) != 0)
-	{
-		pthread_mutex_destroy(&simulation->stop_lock);
-		return (0);
-	}
+		return (pthread_mutex_destroy(&simulation->stop_lock), 0);
 	if (pthread_cond_init(&simulation->alloc_cond, NULL) != 0)
 	{
 		pthread_mutex_destroy(&simulation->stop_lock);
@@ -106,6 +101,15 @@ int	init_simulation(t_simulator *simulation)
 		pthread_cond_destroy(&simulation->alloc_cond);
 		return (0);
 	}
+	return (1);
+}
+
+int	init_simulation(t_simulator *simulation)
+{
+	simulation->start_time = get_current_time();
+	simulation->stop = 0;
+	if (!init_locks(simulation))
+		return (0);
 	simulation->request_heap = heap_init(simulation);
 	if (!simulation->request_heap)
 		return (clean_simulation(simulation), 0);
