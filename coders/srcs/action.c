@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 13:06:54 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/04 13:51:54 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 14:41:33 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,8 +102,9 @@ void	acquire_dongles(t_coder *coder)
 			take_dongles(coder, coder->dongle_left, coder->dongle_right);
 			return ;
 		}
-		pthread_cond_wait(&coder->simulator->alloc_cond,
-			&coder->simulator->alloc_lock);
+		pthread_mutex_unlock(&coder->simulator->alloc_lock);
+		usleep(1000);
+		pthread_mutex_lock(&coder->simulator->alloc_lock);
 	}
 	pthread_mutex_unlock(&coder->simulator->alloc_lock);
 }
