@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/01 14:09:03 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 14:08:36 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ typedef enum e_coder_state
 	DEBUGGING,
 	COMPILING,
 	BURNED_OUT,
-	REFACTORING,
+	REFACTORING
 }	t_coder_state;
 
 typedef struct s_simulator	t_simulator;
@@ -45,10 +45,9 @@ struct s_dongle
 {
 	int				id;
 	pthread_mutex_t	lock;
-	pthread_cond_t	cond;
 	int				held_by;
 	int				is_available;
-	long			unvailable_until;
+	long			unavailable_until;
 };
 
 struct s_request
@@ -89,7 +88,8 @@ struct s_simulator
 	t_dongle		*dongles;
 	pthread_mutex_t	log_lock;
 	pthread_mutex_t	stop_lock;
-	pthread_mutex_t	heap_lock;
+	pthread_mutex_t	alloc_lock;
+	pthread_cond_t	alloc_cond;
 	int				nb_coder;
 	long			start_time;
 	long			time_to_debug;
@@ -98,7 +98,7 @@ struct s_simulator
 	long			time_to_compile;
 	long			dongle_cooldown;
 	long			time_to_burnout;
-	long			time_to_refrator;
+	long			time_to_refactor;
 	int				nb_compilation_required;
 };
 
@@ -108,7 +108,7 @@ t_request	*heap_pop(t_heap *heap);
 t_request	*peek_heap(t_heap *heap);
 void		coder_debug(t_coder *coder);
 void		coder_compile(t_coder *coder);
-void		aquire_dongles(t_coder *coder);
+void		acquire_dongles(t_coder *coder);
 void		coder_refactor(t_coder *coder);
 void		print_err_msg(const char *msg);
 void		heap_shift(t_heap *heap, int i);
