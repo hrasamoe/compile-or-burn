@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 12:58:13 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/04 13:53:31 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 14:45:39 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ static void	*monitor_routine(void *arg)
 		}
 		if (finished == sim->nb_coder)
 			return (print_finish_msg(sim), NULL);
+		usleep(500);
 	}
 	return (NULL);
 }

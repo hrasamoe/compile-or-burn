@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 13:38:48 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/04 14:00:02 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 14:45:04 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,17 +33,32 @@ long long	get_current_time(void)
 
 static int	is_dongle_ready(t_dongle *dongle)
 {
-	long	now;
+long	now;
+	int		ready;
 
+	pthread_mutex_lock(&dongle->lock);
 	now = get_current_time();
-	return (dongle->is_available && now > dongle->unavailable_until);
+	ready = (dongle->is_available && now > dongle->unavailable_until);
+	pthread_mutex_unlock(&dongle->lock);
+	return (ready);
 }
 
 int	are_dongles_ready(t_dongle *dongle_left, t_dongle *dongle_right)
 {
 	if (dongle_left == dongle_right)
 		return (is_dongle_ready(dongle_left));
-	return (is_dongle_ready(dongle_left) && is_dongle_ready(dongle_right));
+	if (dongle_left->id < dongle_right->id)
+	{
+		if (!is_dongle_ready(dongle_left))
+			return (0);
+		return (is_dongle_ready(dongle_right));
+	}
+	else
+	{
+		if (!is_dongle_ready(dongle_right))
+			return (0);
+		return (is_dongle_ready(dongle_left));
+	}
 }
 
 void	precise_sleep(t_simulator *simulation, long duration)
