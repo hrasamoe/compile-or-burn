@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 13:38:48 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/01 13:59:31 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 14:00:02 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ static int	is_dongle_ready(t_dongle *dongle)
 	long	now;
 
 	now = get_current_time();
-	return (dongle->is_available && now > dongle->unvailable_until);
+	return (dongle->is_available && now > dongle->unavailable_until);
 }
 
 int	are_dongles_ready(t_dongle *dongle_left, t_dongle *dongle_right)
