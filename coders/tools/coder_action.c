@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 14:22:26 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 13:34:27 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 13:53:04 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,9 @@ void	coder_compile(t_coder *coder)
 	print_log(coder, "is compiling");
 	coder->last_compilation = get_current_time();
 	coder->state = COMPILING;
+	pthread_mutex_unlock(&coder->lock);
 	precise_sleep(coder->simulator, coder->simulator->time_to_compile);
+	pthread_mutex_lock(&coder->lock);
 	coder->nb_compilation++;
 	pthread_mutex_unlock(&coder->lock);
 }
@@ -40,5 +42,5 @@ void	coder_refactor(t_coder *coder)
 		return ;
 	coder->state = REFACTORING;
 	print_log(coder, "is refactoring");
-	precise_sleep(coder->simulator, coder->simulator->time_to_refrator);
+	precise_sleep(coder->simulator, coder->simulator->time_to_refactor);
 }
