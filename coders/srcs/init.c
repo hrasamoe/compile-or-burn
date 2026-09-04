@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 13:38:48 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/26 13:32:36 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 14:09:17 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,14 +74,9 @@ static t_dongle	*init_dongles(t_simulator *simulation)
 		dongle_array[i].held_by = -1;
 		dongle_array[i].id = i + 1;
 		dongle_array[i].is_available = 1;
-		dongle_array[i].unvailable_until = 0;
+		dongle_array[i].unavailable_until = 0;
 		if (pthread_mutex_init(&dongle_array[i].lock, NULL) != 0)
 			return (free_dongle_on_error(dongle_array, i), NULL);
-		if (pthread_cond_init(&dongle_array[i].cond, NULL) != 0)
-		{
-			pthread_mutex_destroy(&dongle_array[i].lock);
-			return (free_dongle_on_error(dongle_array, i), NULL);
-		}
 		i++;
 	}
 	return (dongle_array);
@@ -93,12 +88,22 @@ int	init_simulation(t_simulator *simulation)
 	simulation->stop = 0;
 	if (pthread_mutex_init(&simulation->stop_lock, NULL) != 0)
 		return (0);
-	if (pthread_mutex_init(&simulation->heap_lock, NULL) != 0)
-		return (pthread_mutex_destroy(&simulation->stop_lock), 0);
+	if (pthread_mutex_init(&simulation->alloc_lock, NULL) != 0)
+	{
+		pthread_mutex_destroy(&simulation->stop_lock);
+		return (0);
+	}
+	if (pthread_cond_init(&simulation->alloc_cond, NULL) != 0)
+	{
+		pthread_mutex_destroy(&simulation->stop_lock);
+		pthread_mutex_destroy(&simulation->alloc_lock);
+		return (0);
+	}
 	if (pthread_mutex_init(&simulation->log_lock, NULL) != 0)
 	{
 		pthread_mutex_destroy(&simulation->stop_lock);
-		pthread_mutex_destroy(&simulation->heap_lock);
+		pthread_mutex_destroy(&simulation->alloc_lock);
+		pthread_cond_destroy(&simulation->alloc_cond);
 		return (0);
 	}
 	simulation->request_heap = heap_init(simulation);
