@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 12:55:50 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/08/29 23:12:54 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 14:32:28 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,9 @@ void	set_stop_flag(t_simulator *simulation)
 	pthread_mutex_lock(&simulation->stop_lock);
 	simulation->stop = 1;
 	pthread_mutex_unlock(&simulation->stop_lock);
+	pthread_mutex_lock(&simulation->alloc_lock);
+	pthread_cond_broadcast(&simulation->alloc_cond);
+	pthread_mutex_unlock(&simulation->alloc_lock);
 }
 
 void	print_start_msg(void)
