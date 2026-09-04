@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 12:58:13 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/01 13:52:40 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 13:53:31 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,9 @@ static void	*coder_routine(void *arg)
 			break ;
 		}
 		pthread_mutex_unlock(&coder->lock);
-		aquire_dongles(coder);
+		acquire_dongles(coder);
+		if (should_stop(coder->simulator))
+			break ;
 		coder_compile(coder);
 		release_dongles(coder->dongle_left, coder->dongle_right,
 			coder->simulator);
