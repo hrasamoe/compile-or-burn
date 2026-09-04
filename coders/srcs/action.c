@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 13:06:54 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/04 14:41:33 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 15:06:47 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,26 @@ int	heap_try_pop_if_mine(t_heap *heap, int coder_id, t_request *result)
 	return (1);
 }
 
+static void	wait_for_dongles(t_coder *coder, t_request *popped)
+{
+	pthread_mutex_lock(&coder->simulator->alloc_lock);
+	while (!should_stop(coder->simulator))
+	{
+		if (are_dongles_ready(coder->dongle_left, coder->dongle_right)
+			&& heap_try_pop_if_mine(coder->simulator->request_heap,
+				coder->id, popped))
+		{
+			pthread_mutex_unlock(&coder->simulator->alloc_lock);
+			take_dongles(coder, coder->dongle_left, coder->dongle_right);
+			return ;
+		}
+		pthread_mutex_unlock(&coder->simulator->alloc_lock);
+		usleep(500);
+		pthread_mutex_lock(&coder->simulator->alloc_lock);
+	}
+	pthread_mutex_unlock(&coder->simulator->alloc_lock);
+}
+
 void	acquire_dongles(t_coder *coder)
 {
 	t_request	new_request;
@@ -91,20 +111,5 @@ void	acquire_dongles(t_coder *coder)
 		+ coder->simulator->time_to_burnout;
 	new_request.arrival_time = get_current_time();
 	push_heap(coder->simulator->request_heap, new_request);
-	pthread_mutex_lock(&coder->simulator->alloc_lock);
-	while (!should_stop(coder->simulator))
-	{
-		if (are_dongles_ready(coder->dongle_left, coder->dongle_right)
-			&& heap_try_pop_if_mine(coder->simulator->request_heap,
-				coder->id, &popped_request))
-		{
-			pthread_mutex_unlock(&coder->simulator->alloc_lock);
-			take_dongles(coder, coder->dongle_left, coder->dongle_right);
-			return ;
-		}
-		pthread_mutex_unlock(&coder->simulator->alloc_lock);
-		usleep(1000);
-		pthread_mutex_lock(&coder->simulator->alloc_lock);
-	}
-	pthread_mutex_unlock(&coder->simulator->alloc_lock);
+	wait_for_dongles(coder, &popped_request);
 }

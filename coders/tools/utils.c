@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 13:38:48 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/04 14:45:04 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/04 15:01:46 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,32 +33,38 @@ long long	get_current_time(void)
 
 static int	is_dongle_ready(t_dongle *dongle)
 {
-long	now;
-	int		ready;
+	long	now;
 
-	pthread_mutex_lock(&dongle->lock);
 	now = get_current_time();
-	ready = (dongle->is_available && now > dongle->unavailable_until);
-	pthread_mutex_unlock(&dongle->lock);
-	return (ready);
+	return (dongle->is_available && now > dongle->unavailable_until);
 }
 
 int	are_dongles_ready(t_dongle *dongle_left, t_dongle *dongle_right)
 {
+	int	ready;
+
 	if (dongle_left == dongle_right)
-		return (is_dongle_ready(dongle_left));
+	{
+		pthread_mutex_lock(&dongle_left->lock);
+		ready = is_dongle_ready(dongle_left);
+		pthread_mutex_unlock(&dongle_left->lock);
+		return (ready);
+	}
 	if (dongle_left->id < dongle_right->id)
 	{
-		if (!is_dongle_ready(dongle_left))
-			return (0);
-		return (is_dongle_ready(dongle_right));
+		pthread_mutex_lock(&dongle_left->lock);
+		pthread_mutex_lock(&dongle_right->lock);
 	}
 	else
 	{
-		if (!is_dongle_ready(dongle_right))
-			return (0);
-		return (is_dongle_ready(dongle_left));
+		pthread_mutex_lock(&dongle_right->lock);
+		pthread_mutex_lock(&dongle_left->lock);
 	}
+	ready = is_dongle_ready(dongle_left)
+		&& is_dongle_ready(dongle_right);
+	pthread_mutex_unlock(&dongle_left->lock);
+	pthread_mutex_unlock(&dongle_right->lock);
+	return (ready);
 }
 
 void	precise_sleep(t_simulator *simulation, long duration)
