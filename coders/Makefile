@@ -17,7 +17,8 @@ SRCS		= $(SRCS_DIR)/main.c \
 			  $(TOOLS_DIR)/log.c \
 			  $(TOOLS_DIR)/parsing.c \
 			  $(TOOLS_DIR)/request.c \
-			  $(TOOLS_DIR)/utils.c
+			  $(TOOLS_DIR)/utils.c \
+			  $(TOOLS_DIR)/time.c
 
 OBJS		= $(SRCS:%.c=$(OBJS_DIR)/%.o)
 
