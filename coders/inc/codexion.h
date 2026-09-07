@@ -6,12 +6,13 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/07 12:11:47 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/07 12:28:08 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CODEXION_H
 # define CODEXION_H
+# define _DEFAULT_SOURCE
 
 # include <unistd.h>
 # include <pthread.h>
