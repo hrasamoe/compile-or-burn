@@ -30,6 +30,7 @@ The simulation enforces strict resource sharing rules, precise timing, and sched
         ├── log.c               # timestamped logging, start/finish/error banners
         ├── parsing.c           # CLI argument validation
         ├── request.c           # heap comparator (FIFO/EDF) and push
+    	├── time.c              # time helpers and timeout calculation
         └── utils.c             # time helpers, dongle readiness checks, precise sleep
 ```
 
@@ -56,24 +57,24 @@ make re     # full rebuild
 
 #### Argument details
 
-| # | Argument                        | Description                                                                 |
-|---|---------------------------------|-----------------------------------------------------------------------------|
-| 1 | `number_of_coders`              | Number of coder threads (and available dongles)                             |
-| 2 | `time_to_burnout`               | Time in ms before a coder burns out if they don't start compiling           |
-| 3 | `time_to_compile`               | Duration of the compiling phase (in ms)                                     |
-| 4 | `time_to_debug`                 | Duration of the debugging phase (in ms)                                     |
-| 5 | `time_to_refactor`              | Duration of the refactoring phase (in ms)                                   |
-| 6 | `number_of_compiles_required`   | Number of successful compiles each coder must reach                         |
-| 7 | `dongle_cooldown`               | Wait time after a dongle is released before it becomes available again (ms) |
-| 8 | `scheduler`                     | Arbitration policy: `fifo` or `edf`                                         |
+| # | Argument                      | Description                                                                 |
+|---|-------------------------------|-----------------------------------------------------------------------------|
+| 1 | `number_of_coders`            | Number of coder threads (and available dongles)                             |
+| 2 | `time_to_burnout`             | Time in ms before a coder burns out if they don't start compiling           |
+| 3 | `time_to_compile`             | Duration of the compiling phase (in ms)                                     |
+| 4 | `time_to_debug`               | Duration of the debugging phase (in ms)                                     |
+| 5 | `time_to_refactor`            | Duration of the refactoring phase (in ms)                                   |
+| 6 | `number_of_compiles_required` | Number of successful compiles each coder must reach                         |
+| 7 | `dongle_cooldown`             | Wait time after a dongle is released before it becomes available again (ms) |
+| 8 | `scheduler`                   | Arbitration policy: `fifo` or `edf`                                         |
 
 #### Example
 
 ```bash
-./codexion 4 800 200 400 100 5 50 edf
+./codexion 4 1500 150 150 80 5 30 edf
 ```
 
-All 8 arguments are mandatory. Arguments 1–7 must be strictly positive integers. Argument 8 must be exactly `fifo` or `edf`. Any invalid input is rejected with a detailed error message and the program exits without starting the simulation.
+All 8 arguments are mandatory. Arguments 1-7 must be strictly positive integers. Argument 8 must be exactly `fifo` or `edf`. Any invalid input is rejected with a detailed error message and the program exits without starting the simulation.
 
 ---
 
@@ -82,16 +83,16 @@ All 8 arguments are mandatory. Arguments 1–7 must be strictly positive integer
 ### Documentation & articles
 
 - [Thread Management Functions in C](https://www.geeksforgeeks.org/c/thread-functions-in-c-c/)
-- Earliest Deadline First (EDF) scheduling – theoretical background on deadline-based real-time scheduling
-- man pages: `pthread_mutex_lock`, `pthread_cond_wait`, `pthread_cond_broadcast`, `gettimeofday`, `usleep`
+- Earliest Deadline First (EDF) scheduling - theoretical background on deadline-based real-time scheduling
+- man pages: `pthread_mutex_lock`, `pthread_cond_wait`, `pthread_cond_timedwait`, `pthread_cond_broadcast`, `gettimeofday`, `clock_gettime`
 
 ### Use of AI assistance
 
 In compliance with 42 project policy, AI tools were used during development for:
 
-- **Architecture design & review** – discussing synchronization strategy, Coffman's deadlock conditions, and the design of the shared priority-queue (heap) used for FIFO/EDF arbitration.
-- **Guided implementation** – the heap, dongle acquisition/release logic, coder and monitor routines were built incrementally through a question-driven walkthrough. Each function was written and reviewed line by line for correctness.
-- **Debugging support** – identifying concrete bugs (mutex self-deadlock on the single-coder edge case, inconsistent availability state, missing destroy calls, data races on dongle state, inefficient busy-waiting) and explaining the underlying causes.
+- **Architecture design & review** - discussing synchronization strategy, Coffman's deadlock conditions, and the design of the shared priority-queue (heap) used for FIFO/EDF arbitration.
+- **Guided implementation** - the heap, dongle acquisition/release logic, coder and monitor routines were built incrementally through a question-driven walkthrough. Each function was written and reviewed line by line for correctness.
+- **Debugging support** - identifying concrete bugs (mutex self-deadlock on the single-coder edge case, data races on dongle state, missing wake-ups after cooldown, incorrect stop propagation) and explaining the underlying causes.
 
 No code was copy-pasted from AI output into the submission without being fully understood, rewritten, and reviewed.
 
@@ -116,11 +117,11 @@ No code was copy-pasted from AI output into the submission without being fully u
 
 ### 3. Cooldown handling
 
-Each dongle stores `unavailable_until` (set to `release_time + dongle_cooldown`). A dongle can only be taken once `current_time > unavailable_until`.
+Each dongle stores `unavailable_until` (set to `release_time + dongle_cooldown`). A dongle can only be taken once `current_time > unavailable_until`. Waiting coders use `pthread_cond_timedwait` so they periodically re-evaluate readiness after the cooldown expires.
 
 ### 4. Precise burnout detection
 
-A dedicated **monitor thread** continuously checks every coder’s deadline. As soon as a coder exceeds `time_to_burnout` without compiling, the monitor logs the burnout and sets the global stop flag.
+A dedicated **monitor thread** continuously checks every coder’s deadline. As soon as a coder exceeds `time_to_burnout` without compiling, the monitor logs the burnout and sets the global stop flag (which also broadcasts on the allocation condition variable to wake every waiting coder).
 
 ### 5. Log serialization
 
@@ -134,32 +135,32 @@ All output goes through `print_log`, protected by `log_lock`, guaranteeing non-i
 
 ## Thread synchronization mechanisms
 
-| Synchronization object              | Purpose                                                                 |
-|-------------------------------------|-------------------------------------------------------------------------|
-| `log_lock`                          | Serializes all stdout output                                            |
-| `stop_lock`                         | Protects the global `stop` flag                                         |
-| `alloc_lock` + `alloc_cond`         | Protects the allocation decision and allows efficient waiting for dongles |
-| `lock` inside `t_heap`              | Protects the shared priority queue (push / try-pop)                     |
-| `lock` per dongle                   | Protects `is_available`, `held_by` and `unavailable_until`              |
-| `lock` per coder                    | Protects a coder’s own state and compilation counter                    |
+| Synchronization object      | Purpose                                                                 |
+|-----------------------------|-------------------------------------------------------------------------|
+| `log_lock`                  | Serializes all stdout output                                            |
+| `stop_lock`                 | Protects the global `stop` flag                                         |
+| `alloc_lock` + `alloc_cond` | Protects the allocation decision and allows efficient waiting for dongles |
+| `lock` inside `t_heap`      | Protects the shared priority queue (push / try-pop)                     |
+| `lock` per dongle           | Protects `is_available`, `held_by` and `unavailable_until`              |
+| `lock` per coder            | Protects a coder’s own state and compilation counter                    |
 
-### How dongle acquisition works (condition variable)
+### How dongle acquisition works
 
-Instead of busy-waiting with `usleep`, a coder that needs dongles does the following:
+A coder that needs dongles proceeds as follows:
 
 1. Pushes a request into the priority heap.
 2. Locks `alloc_lock`.
-3. While the condition “both dongles are ready **and** I am the highest-priority request” is false, it calls `pthread_cond_wait` on `alloc_cond` (releasing `alloc_lock` while sleeping).
+3. While the condition “both dongles are ready **and** I am the highest-priority request” is false, it calls `pthread_cond_timedwait` on `alloc_cond` (with a short timeout). This releases `alloc_lock` while sleeping and guarantees periodic re-evaluation so that cooldowns can expire.
 4. When the condition becomes true, it unlocks `alloc_lock` and proceeds to `take_dongles`.
 
-When a coder finishes compiling and releases its dongles, it updates their state and performs a `pthread_cond_broadcast` on `alloc_cond`. All waiting coders wake up, re-evaluate the condition under `alloc_lock`, and only the legitimate next coder proceeds.
+When a coder finishes compiling and releases its dongles, it updates their state and performs a `pthread_cond_broadcast` on `alloc_cond`. All waiting coders wake up, re-evaluate the condition under `alloc_lock`, and only the legitimate next coder proceeds. The same broadcast is also performed when the global stop flag is set, ensuring a clean shutdown.
 
 This design:
 
 - Eliminates data races on dongle state.
-- Removes inefficient polling.
+- Avoids busy-waiting while still handling time-based cooldowns.
 - Guarantees that the FIFO/EDF ordering is respected.
-- Keeps the code simple and correct by using a single global condition variable for the allocation decision rather than trying to coordinate multiple per-dongle condition variables.
+- Uses a single global condition variable for the allocation decision, keeping the synchronization logic simple and correct.
 
-**Example – race condition avoided**  
+**Example - race condition avoided**  
 Without proper locking, two coders could both observe a dongle as available and both try to take it. By protecting state changes with the dongle mutex and coordinating the high-level decision with `alloc_lock` + `alloc_cond`, only one coder can ever transition a dongle from available to taken.
