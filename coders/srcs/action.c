@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 13:06:54 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/04 15:06:47 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/07 12:06:22 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,8 @@ int	heap_try_pop_if_mine(t_heap *heap, int coder_id, t_request *result)
 
 static void	wait_for_dongles(t_coder *coder, t_request *popped)
 {
+	struct timespec	ts;
+
 	pthread_mutex_lock(&coder->simulator->alloc_lock);
 	while (!should_stop(coder->simulator))
 	{
@@ -94,9 +96,9 @@ static void	wait_for_dongles(t_coder *coder, t_request *popped)
 			take_dongles(coder, coder->dongle_left, coder->dongle_right);
 			return ;
 		}
-		pthread_mutex_unlock(&coder->simulator->alloc_lock);
-		usleep(500);
-		pthread_mutex_lock(&coder->simulator->alloc_lock);
+		set_timeout(&ts, 5);
+		pthread_cond_timedwait(&coder->simulator->alloc_cond,
+			&coder->simulator->alloc_lock, &ts);
 	}
 	pthread_mutex_unlock(&coder->simulator->alloc_lock);
 }
