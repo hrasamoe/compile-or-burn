@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 13:38:48 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/04 15:01:46 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/07 12:05:44 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,6 @@ int	should_stop(t_simulator *simulation)
 	result = simulation->stop;
 	pthread_mutex_unlock(&simulation->stop_lock);
 	return (result);
-}
-
-long long	get_current_time(void)
-{
-	struct timeval	tv;
-
-	if (gettimeofday(&tv, NULL) == -1)
-		return (0);
-	return ((tv.tv_sec * 1000LL) + (tv.tv_usec / 1000LL));
 }
 
 static int	is_dongle_ready(t_dongle *dongle)

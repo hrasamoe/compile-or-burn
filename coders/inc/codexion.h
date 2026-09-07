@@ -6,7 +6,7 @@
 /*   By: hrasamoe <hrasamoe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 14:07:23 by hrasamoe          #+#    #+#             */
-/*   Updated: 2026/09/04 14:08:36 by hrasamoe         ###   ########.fr       */
+/*   Updated: 2026/09/07 12:11:47 by hrasamoe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <unistd.h>
 # include <pthread.h>
 # include <sys/time.h>
+# include <time.h>
 # include <stdlib.h>
 # include <stdio.h>
 # include <string.h>
@@ -120,6 +121,7 @@ void		clean_simulation(t_simulator *simulation);
 void		free_dongle_on_error(t_dongle *dongles, int i);
 void		print_log(t_coder *coder, const char *action);
 int			push_heap(t_heap *heap, t_request new_request);
+void		set_timeout(struct timespec *ts, long ms);
 void		precise_sleep(t_simulator *simulation, long duration);
 int			parse_arguments(int argc, char **argv, t_simulator *sim);
 int			are_dongles_ready(t_dongle *dongle_left, t_dongle *dongle_right);
